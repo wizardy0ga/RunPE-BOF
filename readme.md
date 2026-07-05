@@ -20,3 +20,4 @@ I created this BOF to learn further about them.
 - The Parent Console associated with a spoofed process can still be attributed back to the creating process. (View spoofed process in SystemInformer).
 - The DOS header artitfact remains in memory.
 - Hardcoded call to "C:\\Windows\\System32" as CWD in CreateProcess calls should be dynamic.
+- Various calls within this source code are dynamically resolved by beacon rather than using beacons built in calls for the same functionality. This is due to this BOF being developed with the Havoc Framework which doesn't support some of the functionality that the original BOF api supports. See [ObjectApi.c](https://github.com/HavocFramework/Havoc/blob/main/payloads/Demon/src/core/ObjectApi.c) in Havoc. I don't have access to cobalt strike :').
