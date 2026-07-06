@@ -66,7 +66,7 @@ def RunPE( demon_id, *args ):
     message += f" spoofing parent as pid {ppid}" if ppid != 0 else ""
     task_id = demon.ConsoleWrite( demon.CONSOLE_TASK, message)
     
-    demon.InlineExecute(task_id, "go", "/home/kali/hollow-process.bof", packer.getbuffer(), False )
+    demon.InlineExecute(task_id, "go", "data/extensions/RunPE/RunPE.py", packer.getbuffer(), False )
 
     return task_id
 
