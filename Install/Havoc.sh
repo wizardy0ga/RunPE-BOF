@@ -20,7 +20,7 @@ fi
 extensions_dir="$havoc_root_dir/data/extensions"
 runpe_dir="$extensions_dir/RunPE"
 source_c_file="../Source/BOF/bof.c"
-script_py_file="../Source/Scripts/RunPE.py"
+script_py_file="../Source/Scripts/RunPE.py" # Note: The file name was changed from RunPE.py to runpe.py for consistency.
 dist_o_file="../Dist/RunPE.x64.o"
 
 # Create RunPE directory
@@ -52,8 +52,12 @@ else
 fi
 
 # Copy the Python script
-echo "Copying RunPE.py script..."
+echo "Copying runpe.py script..."
 cp "$script_py_file" "$runpe_dir/"
+
+# Update object_file_path variable in runpe.py
+object_file_path="$havoc_root_dir/data/extensions/RunPE/RunPE.x64.o"
+sed -i "s#object_file_path    = \"\"#object_file_path    = \"$object_file_path\"#" "$runpe_dir/RunPE.py"
 
 echo ""
 echo "========================================"
@@ -62,6 +66,6 @@ echo ""
 echo "To load the script in Havoc console:"
 echo "1. Launch Havoc"
 echo "2. Navigate to Script Manager"
-echo "3. Load RunPE.py from $runpe_dir"
+echo "3. Load runpe.py from $runpe_dir"
 echo "4. Execute 'help runpe' to verify installation in console"
 echo "========================================"

