@@ -6,6 +6,9 @@ I created this BOF to learn further about them.
 ###### Using the BOF in Havoc Framework
 ![Demo](/Img/img.png)
 
+###### Using the BOF in Adaptix C2
+![Adaptix Decmo](/Img/adc2.png)
+
 ## Usage
 `runpe </path/to/hollow> </path/to/payload.exe> <ppid?>`
 
@@ -15,6 +18,10 @@ I created this BOF to learn further about them.
 `git clone https://github.com/wizardy0ga/RunPE-BOF`
 
 2. Navigate to the [Install](/Install/) dir, locate the installation script for the corresponding C2 and execute it. Follow any instructions provided by the script.
+
+### Supported Frameworks
+- [Havoc](https://github.com/havocframework/havoc)
+- [Adaptix C2](https://github.com/Adaptix-Framework/AdaptixC2)
 
 ## Known Issues
 - The Parent Console associated with a spoofed process can still be attributed back to the creating process. (View spoofed process in SystemInformer).
