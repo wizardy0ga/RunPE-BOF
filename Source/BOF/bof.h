@@ -1,7 +1,9 @@
 # include <windows.h>
 # include "beacon.h"
 
-//# define DEBUG
+# define DEBUG
+
+# define SECOND 10000000
 
 # ifdef DEBUG
 # define DBG( msg, ... ) BeaconPrintf( CALLBACK_OUTPUT, msg, ##__VA_ARGS__ );
@@ -16,8 +18,10 @@ DECLSPEC_IMPORT BOOL   Kernel32$GetLastError();
 # define ERR( api )             BeaconPrintf( CALLBACK_ERROR,"%s failed with error: %d", api, Kernel32$GetLastError() );
 # define NTERR( api, status )   BeaconPrintf( CALLBACK_ERROR, "%s failed with error: 0x%0.8X", api, status );
 
-/* Kernel32 Functions */
+/* crt functions */
+DECLSPEC_IMPORT void* Msvcrt$calloc( size_t number, size_t size );
 
+/* Kernel32 Functions */
 DECLSPEC_IMPORT HANDLE Kernel32$GetProcessHeap();
 
 DECLSPEC_IMPORT VOID Kernel32$DeleteProcThreadAttributeList( LPPROC_THREAD_ATTRIBUTE_LIST lpAttributeList );
@@ -118,4 +122,9 @@ DECLSPEC_IMPORT NTSTATUS Ntdll$NtSetContextThread(
 DECLSPEC_IMPORT NTSTATUS Ntdll$NtResumeThread(
     HANDLE ThreadHandle,
     PULONG PreviousSuspendCount
+);
+
+DECLSPEC_IMPORT NTSTATUS Ntdll$NtDelayExecution(
+    BOOLEAN Alertable,
+    PLARGE_INTEGER DelayInterval
 );
