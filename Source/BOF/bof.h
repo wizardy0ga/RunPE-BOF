@@ -1,7 +1,7 @@
 # include <windows.h>
 # include "beacon.h"
 
-# define DEBUG
+//# define DEBUG
 
 # define SECOND 10000000
 
