@@ -16,7 +16,7 @@ var runpe_cmd = ax.create_command(
 runpe_cmd.addArgString( "pathToHollow", true, "A sacrificial process to spawn & inject the PE into." );
 runpe_cmd.addArgString( "payload", true, "A path to a PE payload on your system to execute." );
 runpe_cmd.addArgFlagString( "-cwd", "cwd", "The current working directory for the sacrificial process.", "C:\\Windows\\System32" )
-runpe_cmd.addArgInt( "ppid", false, "A parent process id to spoof as the parent of the sacrificial process." );
+runpe_cmd.addArgFlagInt( "-ppid", "ppid", "A parent process id to spoof as the parent of the sacrificial process.", 0 );
 runpe_cmd.setPreHook( function( id, cmdline, parsed_json, ...parsed_lines ) {
 
     let pathToHollow = parsed_json["pathToHollow"];
