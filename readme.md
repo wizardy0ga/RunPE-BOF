@@ -10,7 +10,13 @@ I created this BOF to learn further about them.
 ![Adaptix Decmo](/Img/adc2.png)
 
 ## Usage
-`runpe </path/to/hollow> </path/to/payload.exe> <ppid?>`
+
+### Adaptix C2
+`runpe /path/to/hollow path/to/payload.exe -cwd CWD -ppid 1234`
+
+### Havoc Framework
+`runpe /path/to/hollow path/to/payload.exe cwd ppid`
+`runpe /path/to/hollow path/to/payload.exe ppid`
 
 ## Installation
 
